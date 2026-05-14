@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Inheritance Calculator</title>
+    
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #F4F6F9;
+            color: #333333;
+            padding: 30px;
+            max-width: 650px;
+            margin: auto;
+        }
+        h1 {
+            color: #1E3A8A;
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+        .instruction {
+            color: #555555;
+            font-style: italic;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .row label.main-label {
+            width: 150px;
+            font-weight: 500;
+        }
+        input[type="number"], input[type="text"] {
+            padding: 5px;
+            font-family: 'Segoe UI';
+            width: 120px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .radio-group { display: flex; gap: 15px; }
+        
+        /* Grid for Relatives */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .grid-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .grid-item label { font-size: 14px; }
+        .grid-item input[type="number"] { width: 60px; }
+        
+        button {
+            background-color: #2563EB;
+            color: white;
+            font-weight: bold;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 25px;
+            margin-bottom: 20px;
+        }
+        button:hover { background-color: #1d4ed8; }
+        
+        pre {
+            background-color: #FFFFFF;
+            color: #1E3A8A;
+            padding: 15px;
+            border: 1px solid #ccc;
+            min-height: 200px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Inheritance Calculator</h1>
+    <div class="instruction">Enter the total estate value, select the gender of the deceased,<br>and indicate the surviving relatives to calculate shares.</div>
+
+    <div class="row">
+        <label class="main-label">Total Estate Value:</label>
+        <input type="number" id="e_estate" value="0.0" step="any">
+    </div>
+
+    <div class="row">
+        <label class="main-label">Deceased Gender:</label>
+        <div class="radio-group">
+            <label><input type="radio" name="gender" value="Male" checked onchange="toggleSpouse()"> Male</label>
+            <label><input type="radio" name="gender" value="Female" onchange="toggleSpouse()"> Female</label>
+        </div>
+    </div>
+
+    <div class="row" id="frame-wives">
+        <label class="main-label">Number of Wives (0-4):</label>
+        <input type="number" id="e_wives" value="0" min="0" max="4">
+    </div>
+
+    <div class="row" id="frame-husband" style="display: none;">
+        <label><input type="checkbox" id="husband_var"> Husband is alive</label>
+    </div>
+
+    <div class="grid-container">
+        <div class="grid-item">
+            <label>Sons:</label>
+            <input type="number" id="e_sons" value="0" min="0">
+        </div>
+        <div class="grid-item">
+            <label>Daughters:</label>
+            <input type="number" id="e_daughters" value="0" min="0">
+        </div>
+
+        <div class="grid-item" style="justify-content: flex-start; gap: 10px;">
+            <input type="checkbox" id="father_var"> <label>Father is alive</label>
+        </div>
+        <div class="grid-item" style="justify-content: flex-start; gap: 10px;">
+            <input type="checkbox" id="mother_var"> <label>Mother is alive</label>
+        </div>
+
+        <div class="grid-item" style="justify-content: flex-start; gap: 10px;">
+            <input type="checkbox" id="grandpa_var"> <label>Paternal Grandpa alive</label>
+        </div>
+        <div class="grid-item" style="justify-content: flex-start; gap: 10px;">
+            <input type="checkbox" id="grandma_var"> <label>Grandmother alive</label>
+        </div>
+
+        <div class="grid-item">
+            <label>Full Brothers:</label>
+            <input type="number" id="e_bros" value="0" min="0">
+        </div>
+        <div class="grid-item">
+            <label>Full Sisters:</label>
+            <input type="number" id="e_siss" value="0" min="0">
+        </div>
+
+        <div class="grid-item">
+            <label>Maternal Brothers:</label>
+            <input type="number" id="e_mat_bros" value="0" min="0">
+        </div>
+        <div class="grid-item">
+            <label>Maternal Sisters:</label>
+            <input type="number" id="e_mat_siss" value="0" min="0">
+        </div>
+
+        <div class="grid-item">
+            <label>Paternal Uncles:</label>
+            <input type="number" id="e_pat_uncle" value="0" min="0">
+        </div>
+        <div class="grid-item">
+            <label>Maternal Uncles:</label>
+            <input type="number" id="e_mat_uncle" value="0" min="0">
+        </div>
+    </div>
+
+    <button id="calc-btn" py-click="calculate_ui">Calculate Shares</button>
+
+    <pre id="output"></pre>
+
+    <script>
+        function toggleSpouse() {
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            if (gender === "Male") {
+                document.getElementById('frame-wives').style.display = 'flex';
+                document.getElementById('frame-husband').style.display = 'none';
+            } else {
+                document.getElementById('frame-wives').style.display = 'none';
+                document.getElementById('frame-husband').style.display = 'flex';
+            }
+        }
+    </script>
+
+    <py-config>
+        [[fetch]]
+        files = ["./engine.py"]
+    </py-config>
+
+    <py-script>
+        from pyscript import document
+        from engine import Engine
+
+        def calculate_ui(event):
+            try:
+                estate_val_str = document.querySelector("#e_estate").value
+                if not estate_val_str:
+                    estate_val_str = "0"
+                estate_val = float(estate_val_str)
+            except ValueError:
+                document.querySelector("#output").innerText = "Input Error: Please enter a valid number for the Estate."
+                return
+
+            engine = Engine(estate_val)
+            gender = document.querySelector('input[name="gender"]:checked').value
+
+            if gender == "Male":
+                wives_val = document.querySelector("#e_wives").value
+                engine.add("wife", int(wives_val) if wives_val else 0)
+            else:
+                husband_checked = document.querySelector("#husband_var").checked
+                engine.add("husband", 1 if husband_checked else 0)
+
+            # Helper functions for UI element retrieval
+            def get_spin(selector):
+                val = document.querySelector(selector).value
+                return int(val) if val else 0
+                
+            def get_check(selector):
+                return 1 if document.querySelector(selector).checked else 0
+
+            # Add all heirs
+            engine.add("son", get_spin("#e_sons"))
+            engine.add("daughter", get_spin("#e_daughters"))
+            engine.add("father", get_check("#father_var"))
+            engine.add("mother", get_check("#mother_var"))
+            engine.add("grandfather", get_check("#grandpa_var"))
+            engine.add("grandmother", get_check("#grandma_var"))
+            engine.add("brother", get_spin("#e_bros"))
+            engine.add("sister", get_spin("#e_siss"))
+            engine.add("maternal_brother", get_spin("#e_mat_bros"))
+            engine.add("maternal_sister", get_spin("#e_mat_siss"))
+            engine.add("paternal_uncle", get_spin("#e_pat_uncle"))
+            engine.add("maternal_uncle", get_spin("#e_mat_uncle"))
+
+            result = engine.calc()
+
+            # Display results
+            output = document.querySelector("#output")
+            output.innerText = ""
+            
+            if not result:
+                output.innerText = "No specific fixed shares calculated based on current inputs."
+                return
+
+            output.innerText += f"Total Estate Value: {estate_val:,.2f}\n"
+            output.innerText += "-" * 40 + "\n"
+            
+            for k, v in result.items():
+                count = engine.heirs.get(k, 1)
+                calculated_value = float(estate_val) * float(v)
+                display_name = k.replace('_', ' ').title()
+
+                if count > 1:
+                    per_person_frac = v / count
+                    per_person_val = calculated_value / count
+                    output.innerText += f"{display_name}s ({count}): Total {v} (Value: {calculated_value:,.2f})\n"
+                    output.innerText += f"  └─ Each gets: {per_person_frac} (Value: {per_person_val:,.2f})\n"
+                else:
+                    output.innerText += f"{display_name}: {v}  (Value: {calculated_value:,.2f})\n"
+    </py-script>
+
+</body>
+</html>
