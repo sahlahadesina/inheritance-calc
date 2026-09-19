@@ -63,6 +63,12 @@
         .grid-item label { font-size: 14px; }
         .grid-item input[type="number"] { width: 60px; }
         
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            margin-bottom: 20px;
+        }
         button {
             background-color: #2563EB;
             color: white;
@@ -73,10 +79,15 @@
             cursor: pointer;
             font-size: 16px;
             width: 100%;
-            margin-top: 25px;
-            margin-bottom: 20px;
         }
         button:hover { background-color: #1d4ed8; }
+        
+        #clear-btn {
+            background-color: #64748b;
+        }
+        #clear-btn:hover {
+            background-color: #475569;
+        }
         
         pre {
             background-color: #FFFFFF;
@@ -185,7 +196,10 @@
         </div>
     </div>
 
-    <button id="calc-btn" py-click="calculate_ui">Calculate Shares</button>
+    <div class="button-group">
+        <button id="calc-btn" py-click="calculate_ui">Calculate Shares</button>
+        <button id="clear-btn" type="button" onclick="clearForm()">Clear All</button>
+    </div>
 
     <pre id="output"></pre>
 
@@ -199,6 +213,25 @@
                 document.getElementById('frame-wives').style.display = 'none';
                 document.getElementById('frame-husband').style.display = 'flex';
             }
+        }
+        
+        function clearForm() {
+            // Reset main fields
+            document.getElementById('e_estate').value = "1.0";
+            document.querySelector('input[name="gender"][value="Male"]').checked = true;
+            toggleSpouse();
+            document.getElementById('e_wives').value = "0";
+            
+            // Reset all grid number inputs to 0
+            const numberInputs = document.querySelectorAll('.grid-item input[type="number"]');
+            numberInputs.forEach(input => input.value = "0");
+            
+            // Uncheck all checkboxes
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            
+            // Clear the output screen
+            document.getElementById('output').innerText = "";
         }
     </script>
 
@@ -239,7 +272,7 @@
             def get_check(selector):
                 return 1 if document.querySelector(selector).checked else 0
 
-            # Add all heirs linked to the new HTML IDs
+            # Add all heirs linked to the HTML IDs
             engine.add("son", get_spin("#e_sons"))
             engine.add("daughter", get_spin("#e_daughters"))
             
