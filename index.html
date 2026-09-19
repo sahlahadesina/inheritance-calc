@@ -239,7 +239,7 @@
             def get_check(selector):
                 return 1 if document.querySelector(selector).checked else 0
 
-            # Add all heirs
+            # Add all heirs linked to the new HTML IDs
             engine.add("son", get_spin("#e_sons"))
             engine.add("daughter", get_spin("#e_daughters"))
             
