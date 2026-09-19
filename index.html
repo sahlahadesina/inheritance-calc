@@ -97,7 +97,7 @@
 
     <div class="row">
         <label class="main-label">Total Estate Value:</label>
-        <input type="number" id="e_estate" value="0.0" step="any">
+        <input type="number" id="e_estate" value="1.0" step="any">
     </div>
 
     <div class="row">
@@ -135,10 +135,17 @@
         </div>
 
         <div class="grid-item" style="justify-content: flex-start; gap: 10px;">
-            <input type="checkbox" id="grandpa_var"> <label>Paternal Grandpa alive</label>
+            <input type="checkbox" id="pat_grandpa_var"> <label>Paternal Grandpa</label>
         </div>
         <div class="grid-item" style="justify-content: flex-start; gap: 10px;">
-            <input type="checkbox" id="grandma_var"> <label>Grandmother alive</label>
+            <input type="checkbox" id="mat_grandpa_var"> <label>Maternal Grandpa</label>
+        </div>
+
+        <div class="grid-item" style="justify-content: flex-start; gap: 10px;">
+            <input type="checkbox" id="pat_grandma_var"> <label>Paternal Grandma</label>
+        </div>
+        <div class="grid-item" style="justify-content: flex-start; gap: 10px;">
+            <input type="checkbox" id="mat_grandma_var"> <label>Maternal Grandma</label>
         </div>
 
         <div class="grid-item">
@@ -148,6 +155,15 @@
         <div class="grid-item">
             <label>Full Sisters:</label>
             <input type="number" id="e_siss" value="0" min="0">
+        </div>
+        
+        <div class="grid-item">
+            <label>Paternal Brothers:</label>
+            <input type="number" id="e_pat_bros" value="0" min="0">
+        </div>
+        <div class="grid-item">
+            <label>Paternal Sisters:</label>
+            <input type="number" id="e_pat_siss" value="0" min="0">
         </div>
 
         <div class="grid-item">
@@ -226,14 +242,21 @@
             # Add all heirs
             engine.add("son", get_spin("#e_sons"))
             engine.add("daughter", get_spin("#e_daughters"))
+            
             engine.add("father", get_check("#father_var"))
             engine.add("mother", get_check("#mother_var"))
-            engine.add("grandfather", get_check("#grandpa_var"))
-            engine.add("grandmother", get_check("#grandma_var"))
+            engine.add("paternal_grandfather", get_check("#pat_grandpa_var"))
+            engine.add("maternal_grandfather", get_check("#mat_grandpa_var"))
+            engine.add("paternal_grandmother", get_check("#pat_grandma_var"))
+            engine.add("maternal_grandmother", get_check("#mat_grandma_var"))
+            
             engine.add("brother", get_spin("#e_bros"))
             engine.add("sister", get_spin("#e_siss"))
+            engine.add("paternal_brother", get_spin("#e_pat_bros"))
+            engine.add("paternal_sister", get_spin("#e_pat_siss"))
             engine.add("maternal_brother", get_spin("#e_mat_bros"))
             engine.add("maternal_sister", get_spin("#e_mat_siss"))
+            
             engine.add("paternal_uncle", get_spin("#e_pat_uncle"))
             engine.add("maternal_uncle", get_spin("#e_mat_uncle"))
 
@@ -258,10 +281,10 @@
                 if count > 1:
                     per_person_frac = v / count
                     per_person_val = calculated_value / count
-                    output.innerText += f"{display_name}s ({count}): Total {v} (Value: {calculated_value:,.2f})\n"
-                    output.innerText += f"  └─ Each gets: {per_person_frac} (Value: {per_person_val:,.2f})\n"
+                    output.innerText += f"{display_name}s ({count}): Total {v} (Value: {calculated_value:,.4g})\n"
+                    output.innerText += f"  └─ Each gets: {per_person_frac} (Value: {per_person_val:,.4g})\n"
                 else:
-                    output.innerText += f"{display_name}: {v}  (Value: {calculated_value:,.2f})\n"
+                    output.innerText += f"{display_name}: {v}  (Value: {calculated_value:,.4g})\n"
     </py-script>
 
 </body>
